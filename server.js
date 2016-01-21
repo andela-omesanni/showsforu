@@ -125,13 +125,13 @@ app.use(express.static(path.join(__dirname, 'public'), { maxAge: 86400000 }));
 
 app.use(function(req, res, next) { 
   if(req.user) {
-    res.cookie('user', JSON.stringify(req.user)); console.log('req.user-------', req.user);
+    res.cookie('user', JSON.stringify(req.user)); 
   }
   res.cookie('apiKey', 'AD25A0B44ABA8F9B');
   next();
 }); 
 
-function ensureAuthenticated(req, res, next) { console.log('---aunthenticated----------', req.isAuthenticated());
+function ensureAuthenticated(req, res, next) { 
   if(req.isAuthenticated()) next();
   else res.send(401);
 }
@@ -314,7 +314,6 @@ var getOEmbed = function(tweet, tweets, oEmbedTweets, res) {
 
   // request data 
   twitter.get('statuses/oembed', params, function (err, data, resp) {
-    //console.log('-------sending-----', oEmbedTweets.length, tweets.length);
     console.log(err, data);
     if(data) {
       tweet.oEmbed = data; 
