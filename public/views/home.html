@@ -1,0 +1,46 @@
+<div class="jumbotron" hide-container>
+  <div class="container">
+    <ul class="alphabet">
+      <li ng-repeat="char in alphabet" ng-click="filterByAlphabet(char)">
+        <span>{{char}}</span>
+      </li>
+    </ul>
+    <ul class="genres">
+      <li ng-repeat="genre in genres" ng-click="filterByGenre(genre)">
+        <span>{{genre}}</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="container">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <span style="font-size: 18px; font-weight: 200;">{{headingTitle}} </span>
+      <div class="pull-right">
+        <input class="search" type="text" ng-model="query.name" placeholder="Search...">
+      </div>
+    </div>
+    
+    <div class="panel-body">
+      <div class="text-center no-match" ng-show="!shows.length && !loading">
+        <p>No Shows matching the criteria '{{headingTitle}}'</p>
+      </div>
+      <div class="text-center no-match" ng-show="shows.length && !filteredShows.length">
+        <p>No Shows matching the criteria '{{query.name}}'</p>
+      </div>
+      <img src="images/spinner.GIF" ng-show="loading" class="center-block" />
+      <div class="row show-list" ng-show="!loading">
+        <div class="col-xs-4 col-md-3" ng-repeat="show in shows | filter:query | orderBy:'rating':true as filteredShows">
+          <a href="/shows/{{show._id}}">
+            <img class="img-rounded" ng-src="{{show.poster}}" width="100%"/>
+          </a>
+          <div class="text-center">
+            <a href="/shows/{{show._id}}">{{show.name}}</a>
+            <p class="text-muted">Episodes: {{show.episodes.length}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

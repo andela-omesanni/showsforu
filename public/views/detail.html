@@ -1,0 +1,156 @@
+<div class="container" id="detail-page">
+  <div class="col-sm-8">
+    <div class="panel panel-default" ng-show="!show.name && !fetching">
+      <div class="panel-body no-match">
+        <p class="text-center">Error 404. Page not found. </p>
+      </div>
+    </div>
+    <div class="panel panel-default" ng-show="show.name">
+      <div class="panel-body">
+        <div class="media">
+          <div class="pull-left">
+            <img id="poster" class="media-object img-rounded" ng-src="{{show.poster}}" data-zoom-image="{{show.poster}}">
+            <div class="text-center" ng-if="currentUser">
+              <div ng-show="show.status==='Continuing' && !isSubscribed()">
+                <button ng-click="subscribe()" class="btn btn-block btn-success">
+                  <span class="glyphicon glyphicon-plus"></span> Subscribe
+                </button>
+              </div>
+              <div ng-show="show && isSubscribed()">
+                <button ng-click="unsubscribe()" class="btn btn-block btn-danger">
+                  <span class="glyphicon glyphicon-minus"></span> Unsubscribe
+                </button>
+              </div>
+            </div>
+            <div class="text-center" ng-show="!currentUser && show.status==='Continuing'">
+              <a class="btn btn-block btn-primary" href="/login">Login to Subscribe</a>
+            </div>
+          </div>
+          <div class="media-body">
+            <h2 class="media-heading">
+              {{show.name}}
+              <span class="pull-right text-danger">{{show.rating}}</span>
+            </h2>
+            <h4 ng-show="show.status === 'Continuing'">
+              <span class="glyphicon glyphicon-calendar text-danger"></span>
+              {{show.airsDayOfWeek}} <em>{{show.airsTime}}</em> on
+              {{show.network}}
+            </h4>
+            <h4 ng-show="show.status === 'Ended'">
+              Status: <span class="text-danger">Ended</span>
+            </h4>
+            <p>{{show.overview}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info" ng-show="nextEpisode">
+      The next episode starts {{nextEpisode.firstAired | fromNow}}.
+    </div>
+
+    <div class="panel panel-default" ng-show="show.name"> 
+      <div class="panel-heading">
+        <span class="glyphicon glyphicon-play"></span>  Episodes
+        <a class="btn btn-xs btn-info" style="display:inline; font-size: 10px;" href="#" data-toggle="modal" data-target="#calendar" ng-click="showCalendar()">Calendar View</a>
+      </div>
+      <div class="panel-body font-inherit">
+        <div class="row">
+          <div class="col-sm-10">
+            <div class="panel-group" id="accordion">
+              <div class="panel panel-default" ng-repeat="season in seasons track by $index">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" ng-click="changeContent(season, $event)" href="{{'#collapse' + $index}}">Season {{season}}</a>
+                  </h4>
+                </div>
+                <div id="{{'collapse' + $index}}" class="panel-collapse collapse" style="border-top: 1px solid #ddd;" ng-class="{'in': $first}">
+                  <div class="panel-body">
+                    <div class="episode" ng-repeat="episode in episodes">
+                      <h4>{{episode.episodeName}}
+                      <small>Season {{episode.season}}, Episode {{episode.episodeNumber}}</small>
+                      </h4>
+                      <p>
+                        <span class="glyphicon glyphicon-calendar"></span>
+                        {{(episode.firstAired | date: 'M/d/yy') || 'Date aired not known'}} 
+                      </p>
+                      <p>{{episode.overview || 'No overview'}}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default" ng-show="show.name">
+      <div class="panel-body">
+        <div id="disqus_thread">
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading" style="padding: 7px 15px;">
+        <span class="fa fa-twitter fa-2x"></span> 
+        <span style="font-size: 17px;">{{hashtag}}</span> 
+      </div>
+      <div class="panel-body">
+        <div class="row clearfix">
+          <div class="col-lg-12" style="max-height: 700px; overflow: scroll;">
+            <img src="images/pulsate.GIF" class="center-block" ng-if="loadingTweets && !tweetsResult.length"/>
+            <div ng-if="!tweetsResult.length && !loadingTweets">
+              No tweets at this time
+            </div> 
+            <div id="tweet-list" ng-if="tweetsResult.length"> 
+              <div ng-repeat="tweet in tweetsResult" class="tweet-item">
+
+                <!-- sanitized HTML binding -->
+                <div ng-bind-html="tweet.oEmbed.html"></div>
+
+                <!-- binding to Tweet source property -->
+                <div class="tweet-details">
+                  <!-- Tweeted from <span ng-bind-html="tweet.source" ></span> -->
+
+                  <!-- play around with rendering different Tweet properties -->
+                  <!-- <p>{{tweet.user.screen_name}}</p> -->
+                  <!-- <p>{{tweet.text}}</p> -->
+                </div>
+              </div>
+              <button type="button" style="width: 94%;" class="load-more-btn btn btn-default btn-block center-block" ng-click="getMoreTweets(hashtag)">{{loadingTweets || 'Load More'}} 
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- <div class="row">
+          <div class="col-lg-12"> -->
+            <!-- this button will trigger the getMoreTweets function in the javascript controller -->
+           <!--  <button type="button" class="load-more-btn btn btn-default" ng-click="getMoreTweets(hashtag)">Get More Tweets</button>
+          </div>
+        </div> -->
+      </div>
+    </div>
+  </div>
+  <div id="calendar" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog font-inherit">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Calendar View</h4>
+        </div>
+        <div class="modal-body" id="body" ng-if="!fetching">
+          <div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
