@@ -28,6 +28,6 @@ angular.module('MyApp', ['ui.calendar', 'ngCookies', 'ngResource', 'ngMessages',
         controller: 'SubscriptionsCtrl'
       })
       .otherwise({
-        redirectTo: '/'
+        redirectTo: '/' 
       });
   }]);
